@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{01D69F44-F0AD-448A-8909-0250A033BAB5}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Console.Example.Reflection</RootNamespace>
-    <AssemblyName>Console.Example.Reflection</AssemblyName>
+    <RootNamespace>ExampleReflection</RootNamespace>
+    <AssemblyName>ExampleReflection</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -31,6 +31,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>ExampleReflection.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
