@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace ExampleReflection
 {
     internal class Program
     {
+        public int MyProperty { get; set; }
+
         private static void Main()
         {
             var numberMenu = -1;
@@ -34,7 +37,8 @@ namespace ExampleReflection
             Console.WriteLine(@"----------------------------------------------------------------------");
             Console.WriteLine("0. Exit from console.");
             Console.WriteLine("1. Dictionary from Type.");
-            Console.WriteLine("2. Trace message.");
+            Console.WriteLine("2. CompilerServices.");
+            Console.WriteLine("3. Reflection vs StackTrace.");
             Console.WriteLine(@"----------------------------------------------------------------------");
             Console.Write("Type switch: ");
         }
@@ -51,7 +55,11 @@ namespace ExampleReflection
                     break;
                 case 2:
                     isPrintMenu = true;
-                    PrintTraceMessage();
+                    PrintCompilerServices();
+                    break;
+                case 3:
+                    isPrintMenu = true;
+                    PrintReflectionVsStackTrace();
                     break;
             }
             if (isPrintMenu)
@@ -68,7 +76,7 @@ namespace ExampleReflection
             Console.WriteLine(@"---                     Dictionary from Type                       ---");
             Console.WriteLine(@"----------------------------------------------------------------------");
 
-            Type t = typeof(SimpleClass);
+            Type t = typeof(Program);
             BindingFlags flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy;
             MemberInfo[] members = t.GetMembers(flags);
             Console.WriteLine($"Type {t.Name} has {members.Length} members: ");
@@ -91,7 +99,7 @@ namespace ExampleReflection
             }
 
             Console.WriteLine("----------------------");
-            var simpleClass = new SimpleClass();
+            var simpleClass = new Program();
             var getDict = DictionaryFromType(simpleClass);
             foreach (var item in getDict)
             {
@@ -113,10 +121,10 @@ namespace ExampleReflection
             return dict;
         }
 
-        private static void PrintTraceMessage()
+        private static void PrintCompilerServices()
         {
             Console.WriteLine(@"----------------------------------------------------------------------");
-            Console.WriteLine(@"---                        Trace message                           ---");
+            Console.WriteLine(@"---                       CompilerServices                         ---");
             Console.WriteLine(@"----------------------------------------------------------------------");
 
             TraceMessage("Something happened.");
@@ -132,10 +140,43 @@ namespace ExampleReflection
             Console.WriteLine("source file path: " + sourceFilePath);
             Console.WriteLine("source line number: " + sourceLineNumber);
         }
-    }
-}
+        
+        private static void PrintReflectionVsStackTrace()
+        {
+            Console.WriteLine(@"----------------------------------------------------------------------");
+            Console.WriteLine(@"---                  Reflection vs StackTrace                      ---");
+            Console.WriteLine(@"----------------------------------------------------------------------");
 
-public class SimpleClass
-{
-    public int PropInt { get; set; }
+            var sw = Stopwatch.StartNew();
+            var count = 50_000;
+            Console.WriteLine($"StackTrace. Result: {PlayWithStackTrace(count)}. Time {sw.ElapsedMilliseconds} msec.");
+            sw.Reset();
+            sw.Start();
+            Console.WriteLine($"Reflection. Result: {PlayWithReflection(count)}. Time {sw.ElapsedMilliseconds} msec.");
+            sw.Stop();
+        }
+
+        private static int PlayWithStackTrace(int count)
+        {
+            var result = 0;
+            for (var i = 0; i < count; i++)
+            {
+                var trace = new StackTrace(false);
+                var method = trace.GetFrame(1).GetMethod();
+                result += method != null ? 1 : 0;
+            }
+            return result;
+        }
+
+        private static int PlayWithReflection(int count)
+        {
+            var result = 0;
+            for (var i = 0; i < count; i++)
+            {
+                var method = typeof(Program).GetProperty("MyProperty");
+                result += method != null ? 1 : 0;
+            }
+            return result;
+        }
+    }
 }
