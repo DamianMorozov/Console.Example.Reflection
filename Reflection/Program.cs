@@ -34,6 +34,7 @@ namespace ExampleReflection
             Console.WriteLine(@"----------------------------------------------------------------------");
             Console.WriteLine("0. Exit from console.");
             Console.WriteLine("1. Dictionary from Type.");
+            Console.WriteLine("2. Trace message.");
             Console.WriteLine(@"----------------------------------------------------------------------");
             Console.Write("Type switch: ");
         }
@@ -47,6 +48,10 @@ namespace ExampleReflection
                 case 1:
                     isPrintMenu = true;
                     PrintDictionaryFromType();
+                    break;
+                case 2:
+                    isPrintMenu = true;
+                    PrintTraceMessage();
                     break;
             }
             if (isPrintMenu)
@@ -106,6 +111,26 @@ namespace ExampleReflection
                 dict.Add(prp.Name, value);
             }
             return dict;
+        }
+
+        private static void PrintTraceMessage()
+        {
+            Console.WriteLine(@"----------------------------------------------------------------------");
+            Console.WriteLine(@"---                        Trace message                           ---");
+            Console.WriteLine(@"----------------------------------------------------------------------");
+
+            TraceMessage("Something happened.");
+        }
+
+        private static void TraceMessage(string message,
+            [System.Runtime.CompilerServices.CallerMemberName] string memberName = "",
+            [System.Runtime.CompilerServices.CallerFilePath] string sourceFilePath = "",
+            [System.Runtime.CompilerServices.CallerLineNumber] int sourceLineNumber = 0)
+        {
+            Console.WriteLine("message: " + message);
+            Console.WriteLine("member name: " + memberName);
+            Console.WriteLine("source file path: " + sourceFilePath);
+            Console.WriteLine("source line number: " + sourceLineNumber);
         }
     }
 }
