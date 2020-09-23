@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 
 namespace ExampleReflection
@@ -82,10 +83,14 @@ namespace ExampleReflection
             Console.WriteLine($"Type {t.Name} has {members.Length} members: ");
             foreach (var member in members)
             {
-                string access = "";
-                string stat = "";
-                var method = member as MethodBase;
-                if (method != null)
+                string access = string.Empty;
+                string stat = string.Empty;
+                string methodParameters = string.Empty;
+                string propertyParameters = string.Empty;
+                var isMethod = member.MemberType == MemberTypes.Method;
+                var isProperty = member.MemberType == MemberTypes.Property;
+
+                if (isMethod && member is MethodBase method)
                 {
                     if (method.IsPublic) access = " Public";
                     else if (method.IsPrivate) access = " Private";
@@ -93,9 +98,22 @@ namespace ExampleReflection
                     else if (method.IsAssembly) access = " Internal";
                     else if (method.IsFamilyOrAssembly) access = " Protected Internal ";
                     if (method.IsStatic) stat = " Static";
+                    methodParameters = string.Join(", ", method.GetParameters().Select(x => x.ParameterType + " " + x.Name).ToArray());
                 }
-                var output = $"/* {member.MemberType} */ {access}{stat} {member.DeclaringType} {member.Name}";
-                Console.WriteLine(output);
+                if (isProperty)
+                {
+                    foreach (var property in t.GetProperties())
+                    {
+                        string read = property.CanRead ? "get;" : "";
+                        string wwrite = property.CanWrite ? "set;" : "";
+                        propertyParameters = $"{property.PropertyType} {property.Name} {{ {read} {wwrite} }}";
+                    }
+                }
+                Console.WriteLine(isMethod 
+                    ? $"/* {member.MemberType} */ {access}{stat} {member.DeclaringType} {member.Name} ({methodParameters})"
+                    : isProperty
+                        ? $"/* {member.MemberType} */ {access}{stat} {member.DeclaringType} {member.Name} {propertyParameters}"
+                        : $"/* {member.MemberType} */ {access}{stat} {member.DeclaringType} {member.Name}");
             }
 
             Console.WriteLine("----------------------");
@@ -149,10 +167,10 @@ namespace ExampleReflection
 
             var sw = Stopwatch.StartNew();
             var count = 50_000;
-            Console.WriteLine($"StackTrace. Result: {PlayWithStackTrace(count)}. Time {sw.ElapsedMilliseconds} msec.");
+            Console.WriteLine($"StackTrace. PlayWithStackTrace.Result: {PlayWithStackTrace(count)}. Time {sw.ElapsedMilliseconds} msec.");
             sw.Reset();
             sw.Start();
-            Console.WriteLine($"Reflection. Result: {PlayWithReflection(count)}. Time {sw.ElapsedMilliseconds} msec.");
+            Console.WriteLine($"Reflection. PlayWithReflection.Result: {PlayWithReflection(count)}. Time {sw.ElapsedMilliseconds} msec.");
             sw.Stop();
         }
 
